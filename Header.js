@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
+import firebase from "firebase";
 import { auth, storage, db } from "./firebase.js";
 
 function Header(props) {
-
   const [progress, setProgress] = useState(0);
 
   const [file, setFile] = useState(null);
@@ -14,8 +14,6 @@ function Header(props) {
     let email = document.querySelector("#emailSignUp").value;
     let password = document.querySelector("#passwordSignUp").value;
     let username = document.querySelector("#usernameSignUp").value;
-
-    // Create account Firebase
 
     auth
       .createUserWithEmailAndPassword(email, password)
@@ -57,10 +55,10 @@ function Header(props) {
     modal.style.display = "block";
   }
 
-  function openModalUpload(e){
+  function openModalUpload(e) {
     e.preventDefault();
-    
-    let modal = document.querySelector('.modalUpload')
+
+    let modal = document.querySelector(".modalUpload");
 
     modal.style.display = "block";
   }
@@ -71,38 +69,68 @@ function Header(props) {
     modal.style.display = "none";
   }
 
-  function closeModalUpload(){
-    let modal = document.querySelector('.modalUpload');
-    
+  function closeModalUpload() {
+    let modal = document.querySelector(".modalUpload");
+
     modal.style.display = "none";
   }
 
-  function uploadPost(e){
+  function logout(e) {
+    e.preventDefault();
+    auth
+      .signOut()
+      .then(() => {
+        props.setUser(null);
+      })
+      .catch((error) => {
+        console.error("Error while doing logout:", error);
+      });
+  }
+
+  function uploadPost(e) {
     e.preventDefault();
 
-    let postSubtitle = document.querySelectorById('subtitleUpload').value;
-    let progressEl = document.querySelectorById('progressUpload');
+    let postSubtitle = document.getElementById("subtitleUpload").value;
+    let progressEl = document.getElementById("progressUpload");
 
     const uploadTask = storage.ref(`images/${file.name}`).put(file);
 
-    uploadTask.on("state_changed", function(snapshot){
-      const progress = Math.round(snapshot.bytesTransferred/snapshot.totalBytes) * 100;
-      setProgress(progress);
-    }), function(error){
-  
-    }, function(){
+    uploadTask.on(
+      "state_changed",
+      function (snapshot) {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setProgress(progress);
+      },
+      function (error) {},
+      function () {
+        storage
+          .ref("images")
+          .child(file.name)
+          .getDownloadURL()
+          .then(function (url) {
+            const postId = `${props.user}_${Date.now()}`;
 
-      storage.ref("images").child(file.name).getDownloadURL
-      .then(function(url){
-        db.collection('posts').add({
-          subtitle: subtitlePost,
-          image: url,
-          userName: props.user,
-        })
-      })
+            db.collection("posts").doc(postId).set({
+              subtitle: postSubtitle,
+              image: url,
+              userName: props.user,
+              timeStamp: firebase.firestore.FieldValue.serverTimestamp(),
+            });
 
+            setProgress(0);
+            setFile(null);
+
+            alert("Successfully uploaded a post");
+
+            document.getElementById("formUpload").reset();
+            closeModalUpload();
+          })
+          .catch(function (error) {});
+      }
+    );
   }
-}
 
   return (
     <div className="header">
@@ -139,14 +167,15 @@ function Header(props) {
             X
           </div>
           <h2>Make an upload</h2>
-          <form onSubmit={(e) => uploadPost(e)}>
+          <form id="formUpload" onSubmit={(e) => uploadPost(e)}>
             <progress id="progressUpload" value={progress}></progress>
             <input
               id="subtitleUpload"
               type="text"
               placeholder="Subtitle to your post..."
             ></input>
-            <input onChange={(e)=>setFile(e.target.files[0])}
+            <input
+              onChange={(e) => setFile(e.target.files[0])}
               id="usernameSignUp"
               type="file"
               name="Submit your file..."
@@ -165,9 +194,12 @@ function Header(props) {
         {props.user ? (
           <div className="header_loggedInfo">
             <span>
-              Olá, <b>{props.user}</b>
+              Hello, <b>{props.user}</b>
             </span>
-            <a onClick={(e)=>openModalUpload(e)}href="#">Create</a>
+            <a onClick={(e) => openModalUpload(e)} href="#">
+              Create
+            </a>
+            <a onClick={(e) => logout(e)}>Sign Out</a>
           </div>
         ) : (
           <div className="header_loginForm">
