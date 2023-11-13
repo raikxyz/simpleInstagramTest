@@ -49,10 +49,14 @@ function Header(props) {
 
   function openModalCreateAccount(e) {
     e.preventDefault();
-
     let modal = document.querySelector(".modalCreateAccount");
-
     modal.style.display = "block";
+    document.body.classList.add("modal-open");
+  }
+
+  function closeModalCreate() {
+    let modal = document.querySelector(".modalCreateAccount");
+    modal.style.display = "none";
   }
 
   function openModalUpload(e) {
@@ -61,12 +65,6 @@ function Header(props) {
     let modal = document.querySelector(".modalUpload");
 
     modal.style.display = "block";
-  }
-
-  function closeModalCreate() {
-    let modal = document.querySelector(".modalCreateAccount");
-
-    modal.style.display = "none";
   }
 
   function closeModalUpload() {
@@ -139,6 +137,7 @@ function Header(props) {
           <div onClick={() => closeModalCreate()} className="closeModalCreate">
             X
           </div>
+
           <h2>Sign up</h2>
           <form onSubmit={(e) => createAccount(e)}>
             <input
