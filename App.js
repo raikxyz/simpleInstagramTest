@@ -10,7 +10,9 @@ function App() {
 
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged(function (val) {
-      setUser(val?.displayName);
+      if (val != null) {
+        setUser(val?.displayName);
+      }
     });
 
     const unsubscribePosts = db
