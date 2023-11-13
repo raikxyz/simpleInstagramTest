@@ -24,6 +24,7 @@ body {
 
 .header_logo {
   width: 50%;
+  user-select: none;
 }
 
 .header_loginForm {
@@ -92,15 +93,22 @@ body {
 }
 
 .formCreateAccount {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   background-color: white;
   padding: 20px;
   width: 80%;
   max-width: 700px;
   text-align: center;
+  margin: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-top: 15%;
+  margin-bottom: 20%;
+  text-overflow: visible;
+}
+
+.formCreateAccount h2 {
+  margin-bottom: 15px;
 }
 
 .formCreateAccount input {
@@ -130,6 +138,7 @@ body {
   background-color: #0095f6;
   color: white;
   line-height: 30px;
+  user-select: none;
 }
 
 .modalUpload {
@@ -184,6 +193,7 @@ body {
 }
 
 .postSingle {
+  padding-bottom: 40px;
   background-color: white;
   max-width: 700px;
   margin: 10px auto;
@@ -215,4 +225,17 @@ body {
   color: white;
   border: 0;
   padding: 8px 10px;
+}
+
+.comments {
+  margin-left: 10px;
+}
+
+.comments h4 {
+  border-bottom: 1px solid #b4b4b4;
+  padding: 8px 0;
+}
+
+.commentSingle p {
+  font-size: 15px;
 }
