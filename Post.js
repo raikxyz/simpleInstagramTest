@@ -1,4 +1,5 @@
-import { db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
+import firebase from "firebase";
 import { useEffect, useState } from "react";
 
 function Post(props) {
@@ -8,6 +9,7 @@ function Post(props) {
     db.collection("posts")
       .doc(props.id)
       .collection("comments")
+      .orderBy("timeStamp", "desc")
       .onSnapshot(function (snapshot) {
         setComments(
           snapshot.docs.map(function (document) {
@@ -21,8 +23,9 @@ function Post(props) {
     e.preventDefault();
     let actualComment = document.querySelector("#comment-" + id).value;
     db.collection("posts").doc(id).collection("comments").add({
-      name: props.user,
+      pName: props.user,
       comment: actualComment,
+      timeStamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
     alert("Comment made successfully!");
 
@@ -39,20 +42,25 @@ function Post(props) {
         <b>{props.info.userName}</b>: {props.info.subtitle}
       </p>
       <div className="comments">
+        <h4>Last comments:</h4>
         {comments.map(function (val) {
           return (
             <div className="commentSingle">
               <p>
-                <b>{val.info.name}</b>: {val.info.comment}
+                <b>{val.info.pName}</b>: {val.info.comment}
               </p>
             </div>
           );
         })}
       </div>
-      <form onSubmit={(e) => send(props.id, e)}>
-        <textarea id={"comment-" + props.id}></textarea>
-        <input type="submit" value="Add a comment"></input>
-      </form>
+      {props.user ? (
+        <form onSubmit={(e) => send(props.id, e)}>
+          <textarea id={"comment-" + props.id}></textarea>
+          <input type="submit" value="Add a comment"></input>
+        </form>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 }
